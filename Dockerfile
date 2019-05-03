@@ -1,10 +1,10 @@
-FROM alpine:latest
+#
+# docker run --rm -i "westonsteimel/jq" "$@"
+#
 
-RUN apk add --no-cache \
-	bash \
-	ca-certificates \
-	curl \
-	findutils \
-	git \
-	jq \
-	openssh-client
+FROM alpine:edge
+
+RUN apk --no-cache add jq
+
+ENTRYPOINT ["jq"]
+CMD ["--help"]
