@@ -28,7 +28,8 @@ jobs:
       - name: Build and Publish stable to DockerHub
         run: |
           export DOCKER_BUILD_CONTEXT="stable" 
-          export DOCKER_IMAGE_VERSION=`curl --silent "https://api.github.com/repos/stedolan/jq/releases/latest" | jq .tag_name | xargs`
+          LATEST_RELEASE=`curl --silent "https://api.github.com/repos/stedolan/jq/releases/latest" | jq .tag_name | xargs`
+          export DOCKER_IMAGE_VERSION=${LATEST_RELEASE#"jq-"}
           export DOCKER_TAGS="stable,latest,${DOCKER_IMAGE_VERSION}"
           ./scripts/publish.sh
   edge:
