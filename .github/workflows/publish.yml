@@ -1,0 +1,53 @@
+on: 
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: '0 1 * * SAT'
+name: Build and publish to DockerHub
+env:
+  DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+  DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+  DOCKER_REGISTRY: 'docker.io'
+  DOCKER_REPOSITORY: 'jq'
+jobs:
+  stable:
+    name: stable
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@main
+      -
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Build and Publish stable to DockerHub
+        run: |
+          export DOCKER_BUILD_CONTEXT="stable" 
+          export DOCKER_IMAGE_VERSION=`curl --silent "https://api.github.com/repos/stedolan/jq/releases/latest" | jq .tag_name | xargs`
+          export DOCKER_TAGS="stable,latest,${DOCKER_IMAGE_VERSION}"
+          ./scripts/publish.sh
+  edge:
+    name: edge
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@main
+      -
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Build and Publish edge to DockerHub
+        run: |
+          export DOCKER_BUILD_CONTEXT="edge"
+          export DOCKER_IMAGE_VERSION="master"
+          export DOCKER_TAGS="edge"
+          ./scripts/publish.sh
+

@@ -2,11 +2,15 @@
 # docker run --rm -i "westonsteimel/jq" "$@"
 #
 
-ARG JQ_VERSION="jq-1.6"
+ARG SOURCE
+ARG REVISION
+ARG CREATED
+ARG VERSION
+ARG GIT_REF="${VERSION}"
 
-FROM alpine:edge as builder
+FROM alpine:latest as builder
 
-ARG JQ_VERSION
+ARG GIT_REF
 
 WORKDIR /build
 
@@ -20,7 +24,7 @@ RUN apk upgrade && apk --no-cache add \
     flex-dev \
     bison
 
-RUN git clone --depth 1 --branch "${JQ_VERSION}" "https://github.com/stedolan/jq" \
+RUN git clone --depth 1 --branch "${GIT_REF}" "https://github.com/stedolan/jq" \
     && cd jq \
     && git submodule update --init \
     && autoreconf -fi \
@@ -35,7 +39,10 @@ RUN git clone --depth 1 --branch "${JQ_VERSION}" "https://github.com/stedolan/jq
 
 FROM scratch
 
-ARG JQ_VERSION
+ARG VERSION
+ARG SOURCE
+ARG REVISION
+ARG CREATED
 
 COPY --from=builder /etc/passwd /etc/passwd
 COPY --from=builder /lib/ld-musl-x86_64.so.1 /lib/ld-musl-x86_64.so.1
@@ -48,8 +55,9 @@ ENTRYPOINT ["jq"]
 CMD ["--help"]
 
 LABEL org.opencontainers.image.title="jq" \
-    org.opencontainers.image.description="jq in Docker" \ 
-    org.opencontainers.image.url="https://github.com/westonsteimel/docker-jq" \ 
-    org.opencontainers.image.source="https://github.com/westonsteimel/docker-jq" \
-    org.opencontainers.image.version="${JQ_VERSION}" \
-    version="${JQ_VERSION}"
+    org.opencontainers.image.description="jq in Docker" \
+    org.opencontainers.image.source="${SOURCE}" \
+    org.opencontainers.image.revision="${REVISION}" \
+    org.opencontainers.image.created="${CREATED}" \
+    org.opencontainers.image.version="${VERSION}"
+    
