@@ -8,7 +8,7 @@ ARG CREATED
 ARG VERSION
 ARG GIT_REF="${VERSION}"
 
-FROM alpine:edge as builder
+FROM alpine:latest as builder
 
 ARG GIT_REF
 
@@ -45,7 +45,6 @@ ARG REVISION
 ARG CREATED
 
 COPY --from=builder /etc/passwd /etc/passwd
-COPY --from=builder /lib/ld-musl-x86_64.so.1 /lib/ld-musl-x86_64.so.1
 COPY --from=builder /usr/local/bin/jq /usr/local/bin/jq
 
 USER jq
