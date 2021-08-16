@@ -2,15 +2,13 @@
 # docker run --rm -i "westonsteimel/jq" "$@"
 #
 
-ARG SOURCE
-ARG REVISION
-ARG CREATED
-ARG VERSION
-ARG GIT_REF="${VERSION}"
+ARG VERSION="master"
+ARG REVISION="d18b2d078c2383d9472d0a0a226e07009025574f"
 
 FROM alpine:latest as builder
 
-ARG GIT_REF
+ARG VERSION
+ARG REVISION
 
 WORKDIR /build
 
@@ -24,8 +22,9 @@ RUN apk upgrade && apk --no-cache add \
     flex-dev \
     bison
 
-RUN git clone --depth 1 --branch "${GIT_REF}" "https://github.com/stedolan/jq" \
+RUN git clone --branch "${VERSION}" "https://github.com/stedolan/jq" \
     && cd jq \
+    && git reset --hard "${REVISION}" \
     && git submodule update --init \
     && autoreconf -fi \
     && ./configure \
@@ -40,9 +39,9 @@ RUN git clone --depth 1 --branch "${GIT_REF}" "https://github.com/stedolan/jq" \
 FROM scratch
 
 ARG VERSION
-ARG SOURCE
 ARG REVISION
-ARG CREATED
+ENV JQ_VERSION="${VERSION}" \
+    JQ_REVISION="${REVISION}"
 
 COPY --from=builder /etc/passwd /etc/passwd
 COPY --from=builder /usr/local/bin/jq /usr/local/bin/jq
@@ -55,8 +54,6 @@ CMD ["--help"]
 
 LABEL org.opencontainers.image.title="jq" \
     org.opencontainers.image.description="jq in Docker" \
-    org.opencontainers.image.source="${SOURCE}" \
     org.opencontainers.image.revision="${REVISION}" \
-    org.opencontainers.image.created="${CREATED}" \
     org.opencontainers.image.version="${VERSION}"
     
