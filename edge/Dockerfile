@@ -3,7 +3,7 @@
 #
 
 ARG VERSION="master"
-ARG REVISION="d18b2d078c2383d9472d0a0a226e07009025574f"
+ARG REVISION="a9f97e9e61a910a374a5d768244e8ad63f407d3e"
 
 FROM alpine:latest as builder
 
